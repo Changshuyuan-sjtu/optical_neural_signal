@@ -247,23 +247,22 @@ class FeatureExtractionPipeline:
 
 if __name__ == "__main__":
 
-    ids = [5,7,9,12,18,24,32]
-    for id in ids:
+    for id in range(1,35):
         print(f"Processing ID: {id}")
         # ================= 配置区域 =================
 
         CONFIG = {
             # 1. 输入路径
-            'RAW_IMAGE_DIR': f"20251102_initial_code/data/data_20250817/antagonism/Image {id}",
+            'RAW_IMAGE_DIR': f"/home/data/changsy/optical_neural_signal/new_data_20260309/data_processed_relabel_niigz/Image {id}",
 
             # track_cell 步骤生成的全局静态掩码
-            'GLOBAL_STATIC_MASK': f"20251102_initial_code/data/data_20250817_tracked/antagonism_mask/Image {id}/global_static_mask/Global_Static_Mask.nii.gz",
+            'GLOBAL_STATIC_MASK': f"/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask_tracked/Image {id}/global_static_mask/Global_Static_Mask.nii.gz",
 
             # track_cell 步骤生成的逐帧追踪掩码
-            'TRACKED_MASK_DIR': f"20251102_initial_code/data/data_20250817_tracked/antagonism_mask/Image {id}/Image {id} relabeled_masks",
+            'TRACKED_MASK_DIR': f"/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask_tracked/Image {id}/Image {id} relabeled_masks",
 
             # 2. 输出路径
-            'OUTPUT_DIR': f"pre_analyze/antagonism_radiomics_features/Image {id}",
+            'OUTPUT_DIR': f"/home/changsy/Optical_neural_signal/pre_analyze/results/new_data_20260309/Image {id}",
 
             # 3. 数据清洗策略 (仅用于动态形态特征)
             'LONG_GAP_STRATEGY': 'zero',
@@ -271,12 +270,13 @@ if __name__ == "__main__":
             # 4. 特征选择 (新策略)
 
             # [静态流] 亮度和纹理 -> 基于 Global Mask 计算 (无空值)
-            'STATIC_FEATURES_INTENSITY': ['Mean'],
-            #'STATIC_FEATURES_INTENSITY': [],
-            'STATIC_FEATURES_GLCM': ['Contrast', 'JointEntropy'],  # 纹理移到这里
-            #'STATIC_FEATURES_GLCM': [],
+            #'STATIC_FEATURES_INTENSITY': ['Mean'],
+            'STATIC_FEATURES_INTENSITY': [],
+            #'STATIC_FEATURES_GLCM': ['Contrast', 'JointEntropy'],  # 纹理移到这里
+            'STATIC_FEATURES_GLCM': [],
             # [动态流] 仅保留形态 -> 基于 Tracked Mask 计算 (有空值)
-            'DYNAMIC_FEATURES_SHAPE': ['PixelSurface', 'Perimeter']
+            'DYNAMIC_FEATURES_SHAPE': ['PixelSurface']
+            #'DYNAMIC_FEATURES_SHAPE':[]
         }
         pipeline = FeatureExtractionPipeline(CONFIG)
         pipeline.run()
