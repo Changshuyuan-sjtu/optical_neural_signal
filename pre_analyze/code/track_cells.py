@@ -211,20 +211,19 @@ class CellRelabelingPipeline:
 
 if __name__ == "__main__":
     # ================= 配置区域 (Configuration) =================
-    ids = [2,4,6,8,11,18,24,30,39]
-    for id in ids:
+    for id in range(1,35):
         CONFIG = {
             # 1. 输入路径：存放原始掩码的文件夹
-            'RAW_MASK_DIR': f"20251102_initial_code/data/data_20250817/agonism_mask/Image {id}",
+            'RAW_MASK_DIR': f"/home/data/changsy/optical_neural_signal/new_data_20260309/semantic_mask_relabel_niigz/Image {id}",
 
             # 2. 输出路径：存放所有结果的根目录
-            'OUTPUT_DIR': f"20251102_initial_code/data/data_20250817_tracked/agonism_mask/Image {id}",
+            'OUTPUT_DIR': f"/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask_tracked/Image {id}",
 
             # 1. 最小峰值距离
             #    决定了两个细胞中心最少要隔多远。
             #    既然有粘连，这个值不要设太大，以免漏掉挤在一起的小细胞。
             #    建议：5 ~ 8
-            'MIN_DISTANCE': 3,
+            'MIN_DISTANCE': 5,
 
             # 2. 绝对阈值 (Filter)
             #    累加后的距离场中，只有高度超过此值的峰才算有效细胞。
