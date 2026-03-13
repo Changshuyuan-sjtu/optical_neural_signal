@@ -304,7 +304,7 @@ def create_video_from_images(folder_path, output_video_path='output.mp4', interv
     """
     print("input_folder_path:", folder_path)
     # 获取文件夹中所有图片文件，并按文件名排序
-    images = [img for img in os.listdir(folder_path) if img.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    images = [img for img in os.listdir(folder_path) if img.lower().endswith(('.png', '.jpg', '.jpeg','.tif', '.tiff'))]
     images.sort()  # 按文件名排序（假设文件名已有序）
 
     if not images:
@@ -313,7 +313,7 @@ def create_video_from_images(folder_path, output_video_path='output.mp4', interv
 
     # 读取第一张图片，获取尺寸
     first_image_path = os.path.join(folder_path, images[0])
-    frame = cv2.imread(first_image_path)
+    frame = cv2.imread(first_image_path, cv2.IMREAD_UNCHANGED)
     if frame is None:
         print(f"无法读取图片: {first_image_path}")
         return
@@ -326,7 +326,7 @@ def create_video_from_images(folder_path, output_video_path='output.mp4', interv
     # 遍历每张图片
     for image in images:
         image_path = os.path.join(folder_path, image)
-        img = cv2.imread(image_path)
+        img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
         if img is None:
             print(f"跳过无效图片: {image_path}")
             continue
@@ -672,7 +672,7 @@ if __name__ == '__main__':
     
     
     #面积过滤
-    for id in range(1,36):
+    for id in range(1,35):
         input_folder = f'/home/data/changsy/optical_neural_signal/new_data_20260309/semantic_mask/Image_{str(id).zfill(3)}'
         output_folder = f'/home/data/changsy/optical_neural_signal/new_data_20260309/semantic_mask_denoised/Image_{str(id).zfill(3)}'
         filter_components_by_area_batch(input_folder=input_folder, output_folder=output_folder)
@@ -693,13 +693,13 @@ if __name__ == '__main__':
         process_images_with_mask(input_folder=f'Intermediate experimental results/activity_map_jiekang/activity_map_jiekang_{id}/correct_images_rollingball',
                                  mask_path=f'Intermediate experimental results/activity_map_jiekang/activity_map_jiekang_{id}/global_mask_by_or.tif',
                                  output_folder=f'label_summary/jiekang/Image {id}/Image {id} all')
-    
+    '''
     #从images folder中生成视频
-    folder_ids = [2,39]
+    folder_ids = [4,16]
     for id in folder_ids:
-        create_video_from_images(f'label_summary/jidong/Image {id}/Image {id} outline_GT',
-                            f'label_summary/jidong/Image {id}/jidong_{id}_GT.mp4', interval_seconds=0.5, fps=30)
-    
+        create_video_from_images(f'/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask/Image {id} overlay',
+                        f'/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask/Image {id} overlay.mp4', interval_seconds=0.25, fps=30)
+    '''
                             
     #把npy文件转换为tif标签 
     ids = [5,7,9,12,18,24,32]
@@ -708,33 +708,33 @@ if __name__ == '__main__':
         output_dir = f'label_jiekang/Image_{id}_filtered'
         transform_npy_to_tif(input_dir=input_dir, output_dir=output_dir)
     
-    '''
+    
     #填洞+去毛刺
-    for id in range(1,36):
+    for id in range(1,35):
         input_folder = f'/home/data/changsy/optical_neural_signal/new_data_20260309/semantic_mask_denoised/Image_{str(id).zfill(3)}'
         output_folder = f'/home/data/changsy/optical_neural_signal/new_data_20260309/semantic_mask_cleaned/Image_{str(id).zfill(3)}'
         clean_masks_folder(input_folder, output_folder, open_radius=1, close_radius=1, overwrite=False, verbose=True)
-    '''
     
-    ids = [4,6,8,11,18,24,30,39]
-    for id in ids:
+
+    for id in [4,16]:
         #把语义级标签转化为实例级标签
-        input_folder = f'semantic_label/label_jidong/Image {id} further_filtered'
-        output_folder = f'instance_label/label_jidong/Image {id}'
+        input_folder = f'/home/data/changsy/optical_neural_signal/new_data_20260309/semantic_mask_relabel_tif/Image {id}'
+        output_folder = f'/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask/Image {id}'
         semantic_to_instances(input_folder, output_folder)
     
 
+    for id in [4,16]:
     #可视化实例级标签——映射为随机颜色
-    input_folder = "instance_label/label_jiekang/Image 32"
-    output_folder = "instance_label/label_jiekang/Image 32 colored"
-    labels_to_color_batch(input_folder, output_folder)
+        input_folder = f"/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask/Image {id}"
+        output_folder = f"/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask/Image {id} colored"
+        labels_to_color_batch(input_folder, output_folder)
     
-    
+    for id in [4,16]:
     #将彩色RGB标签半透明叠加到原图上
-    rgb_folder = "instance_label/label_jiekang/Image 24 colored"
-    raw_folder = "Intermediate experimental results/activity_map_jiekang/activity_map_jiekang_24/correct_images_rollingball"
-    output_folder = "instance_label/label_jiekang/Image 24 overlay"
-    overlay_instance_labels(rgb_folder, raw_folder, output_folder)
+        rgb_folder = f"/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask/Image {id} colored"
+        raw_folder = f"/home/data/changsy/optical_neural_signal/new_data_20260309/data_processed_relabel_jpg/Image {id}"
+        output_folder = f"/home/data/changsy/optical_neural_signal/new_data_20260309/instance_mask/Image {id} overlay"
+        overlay_instance_labels(rgb_folder, raw_folder, output_folder)
     
     #把实例标签转为语义标签
     instances_to_semantic("Fluorescent cell segmentation/instance_label/label_jiekang/antago_Image_9", 
